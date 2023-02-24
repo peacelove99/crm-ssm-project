@@ -49,7 +49,25 @@ public interface ActivityMapper {
      */
     int updateActivity(Activity activity);
 
+    /**
+     * 查询所有的市场活动
+     * @return
+     */
+    List<Activity> selectAllActivitys();
 
+    /**
+     * 根据ids查询市场活动
+     * @param ids
+     * @return
+     */
+    List<Activity> selectActivityByIds(String[] ids);
+
+    /**
+     * 批量保存创建的市场活动
+     * @param activityList
+     * @return
+     */
+    int insertActivityByList(List<Activity> activityList);
 
 
     /**
