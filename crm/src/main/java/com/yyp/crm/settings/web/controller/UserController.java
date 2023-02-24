@@ -3,9 +3,9 @@ package com.yyp.crm.settings.web.controller;
 import com.yyp.crm.commons.contants.Contants;
 import com.yyp.crm.commons.domain.ReturnObject;
 import com.yyp.crm.commons.utils.DateUtils;
+import com.yyp.crm.commons.utils.MD5Utils;
 import com.yyp.crm.settings.domain.User;
 import com.yyp.crm.settings.service.UserService;
-import com.yyp.crm.settings.service.impl.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,13 +34,29 @@ public class UserController {
         return "settings/qx/user/login";
     }
 
+    /**
+     * 登录验证
+     * @param loginAct
+     * @param loginPwd
+     * @param isRemPwd
+     * @param request
+     * @param response
+     * @param session
+     * @return
+     */
     @RequestMapping("/settings/qx/user/login.do")
     public @ResponseBody
     Object login(String loginAct, String loginPwd, String isRemPwd, HttpServletRequest request, HttpServletResponse response, HttpSession session) {
         //封装参数
         Map<String,Object> map = new HashMap<>();
-        map.put("loginAct",loginAct);
-        map.put("loginPwd",loginPwd);
+        try {
+            //MD5验证
+            loginPwd = MD5Utils.md52(loginPwd);
+            map.put("loginAct",loginAct);
+            map.put("loginPwd",loginPwd);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         //调用service层方法，查询用户
         User user = userService.queryUserByLoginActAndPwd(map);
@@ -52,8 +68,6 @@ public class UserController {
             returnObject.setCode(Contants.RETURN_OBJECT_CODE_FAIL);
             returnObject.setMessage("用户名或者密码错误");
         }else {//进一步判断账号是否合法
-            //user.getExpireTime()   //2019-10-20
-            //        new Date()     //2020-09-10
             if (DateUtils.formateDateTime(new Date()).compareTo(user.getExpireTime()) > 0) {
                 //登录失败，账号已过期
                 returnObject.setCode(Contants.RETURN_OBJECT_CODE_FAIL);
@@ -91,6 +105,12 @@ public class UserController {
         return returnObject;
     }
 
+    /**
+     * 安全退出
+     * @param response
+     * @param session
+     * @return
+     */
     @RequestMapping("/settings/qx/user/logout.do")
     public String logout(HttpServletResponse response, HttpSession session){
         //清空cookie

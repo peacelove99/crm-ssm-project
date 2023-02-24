@@ -31,6 +31,13 @@
     createTime, create_by, edit_time, edit_by
   </sql>
 
+  <select id="selectAllUser" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from tbl_user
+    where lock_state = '1'
+  </select>
+
   <select id="selectUserByLoginActAndPwd" parameterType="map" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
